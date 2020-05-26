@@ -3,64 +3,37 @@ import {Text, View, FlatList, Keyboard} from 'react-native';
 import styles from '../style';
 import ContatoInput from '../components/ContatoInput';
 import ContatoItem from '../components/ContatoItem';
+import {useDispatch, useSelector} from 'react-redux';
 
 const PageIndex = (props) => {
 
-  const [contatos, setContatos] = useState([]);
-
-  const [contadorContatos, setContadorContatos] = useState(10);
+  const dispatch = useDispatch();
   
-  const prevContatos = useRef([]);
-
-  useEffect(() => {
-    let newContatos = [...props.onUpdateContatos];
-    // console.log('//////////////////////////////////////////////////////////////////////')
-    // console.log(newContatos);
-    setContatos([...newContatos]);
-  },[])
-/*useEffect que observa a mudança no estado 
-de contato e atribui a useRef de prevContatos */
-  useEffect(() => {
-    prevContatos.current = [...contatos];
-  },[contatos]);
-
- /*valor de se a pagina de detail deve ser mostrada 
- ou nao é o estado de prevContatos é enviado para classe pai App.js */ 
-  const atualizaShowingPageDetail = (valor, key) => {
-    props.onShowingPageDetail(valor, key, prevContatos.current);
-  }
+  const contatos = useSelector(estado => estado.contatos.contatos);
   
-
-  const adicionarContato = (nome, telefone) => {
-    Keyboard.dismiss();
-    setContatos (contatos => {
-      if(contatos.length >= 0) {
-        setContadorContatos((contadorContatos + 2));
-      }
-      return [
-        {
-          key: contadorContatos.toString(),
-          value: {nome: nome, telefone: telefone}
-        }, 
-        ...contatos
-      ];
-    });
-    // console.log (contatos);
-
+  const {navigation} = props;
+  
+  const atualizarShowingPageDetail = (key, nome, telefone, imagemURL) =>{
+  navigation.navigate('TelaDetails', {key: key, nome: nome, telefone: telefone: image:imagemURL, onEditarContato:editarContato})
   }
 
+  const adicionarContato = (nome, telefone, imagemURL) => {
+    keyboard.dismiss();
+    dispatch(contatosActions.addContato(nome, telefone, imagemURL));
+  }
+  
   const removerContato = (keyASerRemovida) => {
-    setContatos(contatos => {
-      return contatos.filter(contato => contato.key !== keyASerRemovida);
-    })
+    dispatch(contatoActions.deleteContato(keyASerRemovida));
   }
-
-
+  
+  const editarContato = (key, nome, telefone, imagemURL) => {
+    dispatch(contatosActions.editarContato(key, nome, telefone, imagemURL));
+  }
 
  
 
   return ( 
-    <View>
+    <View style={styles.container}>
       <View style={styles.welcome}>
         <Text style={styles.welcomeTitle}>Cadastre um nome e um telefone!</Text>
       </View>
@@ -70,11 +43,11 @@ de contato e atribui a useRef de prevContatos */
       <FlatList 
         style={{height: '50%'}}
         data={contatos}
+        keyExtractor={contato => contato.id}
         renderItem={
           contato => (
             <ContatoItem 
-              contato={contato.item.value}
-              chave={contato.item.key}
+              contato={contato.item}
               onDelete={removerContato}
               onShowPageDetail={atualizaShowingPageDetail}
             />
