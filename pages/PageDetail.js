@@ -5,6 +5,7 @@ import Cartao from '../components/Cartao';
 import styles from '../style';
 import Cores from '../colors/colors';
 import Medidas from '../measures/measures';
+import TirarFoto from '../components/TirarFoto';
 
 const PageDetail = (props) => {
   const {navigation} = props;
@@ -15,6 +16,9 @@ const PageDetail = (props) => {
   const chave = navigation.getParam('key');
   const [nome, setNome] = useState(name);
   const [telefone, setTelefone] = useState(tel);
+  const imagem = navigation.getParam('image');
+  const [telefone, setTelefone] = useState(tel);
+  const [imagemURL, setImagemURL] = useState(imagem);
 
   const capturarNome = (textoDigitado) => {
     setNome(textoDigitado)
@@ -23,17 +27,21 @@ const PageDetail = (props) => {
   const capturarTelefone = (textoDigitado) => {
     setTelefone(textoDigitado)
   }
+  
+  const FotoTirada = imagemURL =>{
+    setImagemURL(imagemURL);
+  }
   const atualizarContatoOnIndex = () => {
     params.onEditarContato(chave, nome, telefone)
     navigation.navigate('TelaInicial');
   }
 
   return (
-    <View>
+    <View style={styles.container}>
       <View style={estilo.containerBotaoVoltar}>
         <TouchableOpacity 
           style={estilo.touchableVoltar}
-          onPress={() => {props.onShowPageDetail(false)}}
+          onPress={() => navigation.goBack()}
         >
           <Text>Voltar</Text>
         </TouchableOpacity>
@@ -44,24 +52,28 @@ const PageDetail = (props) => {
             style={styles.contatoTextInput}
             editable={editable}
             value={nome}
-            onChangeText={capturarNome}
-          />
+            onChangeText={capturarNome} />
+              
           <TextInput
             style={styles.contatoTextInput}
             editable={editable}
             value={telefone}
-            onChangeText={capturarTelefone}
-          />
+            onChangeText={capturarTelefone} />
+            <TirarFoto 
+            onFotoTirada={fotoTirada}
+            imagemURI={imagemURL} />
+              
           <View style={estilo.containerButton}>
             <TouchableOpacity
               style={styles.datailsButton}
-              onPress={() => {setEditable(!editable)}}
-            >
+              onPress={() => {setEditable(!editable)}} >
+              
                 <Text>Editar</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={{...styles.datailsButton, ...estilo.button}}
               onPress={atualizarContatoOnIndex}>
+                
               <Text>Confirmar</Text>
             </TouchableOpacity>
           </View>
